@@ -1,3 +1,6 @@
+const AWS = require("aws-sdk");
+const docClient = new AWS.DynamoDB.DocumentClient();
+const uniqid = require("uniqid");
 const PIZZAS = require("../data/pizza.json");
 
 const orderPizza = order => {
@@ -15,9 +18,24 @@ const orderPizza = order => {
     throw new Error("The pizza you requested was not found");
   }
 
-  return {
-    success: `Pizza ${pizza.name} will be delivered to address ${address}`
-  };
+  return docClient
+    .put({
+      TableName: "pizza-orders",
+      Item: {
+        orderId: uniqid(),
+        pizza: pizza,
+        address: order.address,
+        orderStatus: "pending"
+      }
+    })
+    .promise()
+    .then(res => {
+      success: `Pizza ${pizza.name} will be delivered to address ${address}`;
+    })
+    .catch(error => {
+      console.log(`Oops, order is not saved :(`, error);
+      throw error;
+    });
 };
 
 module.exports = orderPizza;
