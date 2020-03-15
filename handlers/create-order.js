@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 const docClient = new AWS.DynamoDB.DocumentClient();
-const uniqid = require("uniqid");
+const uuid = require("uuid");
 const PIZZAS = require("../data/pizza.json");
 
 const orderPizza = order => {
@@ -22,7 +22,7 @@ const orderPizza = order => {
     .put({
       TableName: "pizza-orders",
       Item: {
-        orderId: uniqid(),
+        orderId: uuid.v4(),
         pizza: pizza,
         address: order.address,
         orderStatus: "pending"
