@@ -4,10 +4,13 @@ const api = new Api();
 
 const getPizzas = require("./handlers/get-pizzas");
 const createOrder = require("./handlers/create-order");
+const getOrders = require("./handlers/get-orders");
 const deleteOrder = require("./handlers/delete-order");
 const updateOrder = require("./handlers/update-order");
 
 api.get("/", () => "Welcome to Pizza API");
+
+// ** Pizzas
 api.get("/pizzas", () => {
   return getPizzas();
 });
@@ -21,6 +24,17 @@ api.get(
   }
 );
 
+// ** Orders
+api.get("/orders", () => {
+  return getOrders();
+});
+api.get(
+  "/orders/{id}",
+  request => {
+    return getOrders(request.pathParams.id);
+  },
+  { error: 404 }
+);
 api.post(
   "/orders",
   request => {
@@ -28,7 +42,6 @@ api.post(
   },
   { success: 201, error: 400 }
 );
-
 api.delete(
   "/orders/{id}",
   request => {
