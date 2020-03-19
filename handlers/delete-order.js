@@ -1,11 +1,14 @@
 const AWS = require("aws-sdk");
 const docClient = new AWS.DynamoDB.DocumentClient();
+const rp = require("minimal-request-promise");
 const apis = require("../config/api_urls");
 
 const deletePizza = orderId => {
   if (!orderId) {
     throw Error("Order ID must be specified");
   }
+
+  console.log("Delete order ID is", orderId);
 
   return docClient
     .get({
@@ -15,8 +18,10 @@ const deletePizza = orderId => {
       }
     })
     .promise()
-    .then(result => {
-      if (result.Item.orderStatus !== "pending") {
+    .then(result => result.Item)
+    .then(item => {
+      console.log("delete an order", item);
+      if (item.orderStatus !== "pending") {
         throw new Error(
           `Order id ${orderId} status is not pending, thus cannot be cancelled`
         );

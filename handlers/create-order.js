@@ -1,10 +1,10 @@
 const AWS = require("aws-sdk");
 const docClient = new AWS.DynamoDB.DocumentClient();
 const rp = require("minimal-request-promise");
-const uuid = require("uuid");
 const PIZZAS = require("../data/pizza.json");
 const apis = require("../config/api_urls");
 const orderPizza = order => {
+  console.log("Save an order", order);
   if (!order || !order.pizzaId || !order.address) {
     throw new Error("Pizza id and address are needed for an order");
   }
