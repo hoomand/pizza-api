@@ -9,6 +9,10 @@ const deleteOrder = require("./handlers/delete-order");
 const updateOrder = require("./handlers/update-order");
 const updateDeliveryStatus = require("./handlers/update-delivery");
 
+api.registerAuthorizer("userAuthentication", {
+  providerARNs: [process.env.userPoolArn]
+});
+
 api.get("/", () => "Welcome to Pizza API");
 
 // ** Pizzas
@@ -39,16 +43,16 @@ api.get(
 api.post(
   "/orders",
   request => {
-    return createOrder(request.body);
+    return createOrder(request);
   },
-  { success: 201, error: 400 }
+  { success: 201, error: 400, cognitoAuthorizer: "userAuthentication" }
 );
 api.delete(
   "/orders/{id}",
   request => {
     return deleteOrder(request.pathParams.id);
   },
-  { success: 201, error: 400 }
+  { success: 201, error: 400, cognitoAuthorizer: "userAuthentication" }
 );
 
 api.put(
@@ -56,7 +60,7 @@ api.put(
   request => {
     return updateOrder(request.pathParams.id, request.body);
   },
-  { success: 201, error: 400 }
+  { success: 201, error: 400, cognitoAuthorizer: "userAuthentication" }
 );
 
 api.post("/delivery", request => updateDeliveryStatus(request.body), {
