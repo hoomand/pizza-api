@@ -10,7 +10,7 @@ const updateOrder = require("./handlers/update-order");
 const updateDeliveryStatus = require("./handlers/update-delivery");
 
 api.registerAuthorizer("userAuthentication", {
-  providerARNs: [process.env.userPoolArn]
+  providerARNs: [process.env.USER_POOL_ARN]
 });
 
 api.get("/", () => "Welcome to Pizza API");
