@@ -1,6 +1,7 @@
 const AWSXRay = require("aws-xray-sdk-core");
 const AWS = AWSXRay.captureAWS(require("aws-sdk"));
 const docClient = new AWS.DynamoDB.DocumentClient();
+const uuid = require("uuid");
 const rp = require("minimal-request-promise");
 const PIZZAS = require("../data/pizza.json");
 const apis = require("../config/api_urls");
@@ -29,40 +30,22 @@ const orderPizza = order => {
     throw new Error("The pizza you requested was not found");
   }
 
-  return rp
-    .post(apis.deliveryService, {
-      headers: {
-        Authorization: "aunt-marias-pizzeria-1234567890",
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify({
-        pickupTime: "15.34pm",
-        pickupAddress: "Aunt Maria Pizzeria",
-        deliveryAddress: address,
-        webhookUrl: apis.ourWebhook
-      })
+  return docClient
+    .put({
+      TableName: "pizza-orders",
+      Item: {
+        orderId: uuid.v4(),
+        pizza: pizza,
+        address: address,
+        orderStatus: "pending"
+      }
     })
-    .then(rawResponse => JSON.parse(rawResponse.body))
-    .then(response => {
-      return docClient
-        .put({
-          TableName: "pizza-orders",
-          Item: {
-            cognitoUsername: address["cognito:username"],
-            orderId: response.deliveryId,
-            pizza: pizza,
-            address: address,
-            orderStatus: "pending"
-          }
-        })
-        .promise();
-    })
+    .promise()
     .then(res => {
-      console.log("Order is saved");
-      return res;
+      success: `Pizza ${pizza.name} will be delivered to address ${address}`;
     })
     .catch(error => {
-      console.error(`Oops, order is not saved :(`, error);
+      console.log(`Oops, order is not saved :(`, error);
       throw error;
     });
 };
